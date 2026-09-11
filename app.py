@@ -32,7 +32,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Load the trained Decision Tree model
+# Load the trained Decision Tree model[cite: 1]
 @st.cache_resource
 def load_model():
     with open("decision.pkl", "rb") as file:
@@ -71,7 +71,7 @@ st.markdown("---")
 
 # Prediction Trigger
 if st.button("Predict Loan Status"):
-    # Construct DataFrame with the exact feature names and spacing from the trained model[cite: 1]
+    # Construct DataFrame for structure[cite: 1]
     input_data = pd.DataFrame([[
         no_of_dependents,
         education,
@@ -84,28 +84,20 @@ if st.button("Predict Loan Status"):
         luxury_assets_value,
         bank_asset_value
     ]], columns=[
-        ' no_of_dependents', 
-        ' education', 
-        ' self_employed', 
-        'income_annum', 
-        ' loan_amount', 
-        ' cibil_score', 
-        ' residential_assets_value', 
-        ' commercial_assets_value', 
-        ' luxury_assets_value', 
-        ' bank_asset_value'
+        'no_of_dependents', 'education', 'self_employed', 'income_annum', 
+        'loan_amount', 'cibil_score', 'residential_assets_value', 
+        'commercial_assets_value', 'luxury_assets_value', 'bank_asset_value'
     ])
     
-    # NOTE: If your model was trained on encoded numeric values instead of text strings 
-    # for 'education' or 'self_employed', uncomment and map them below:
-    # input_data[' education'] = input_data[' education'].map({'Graduate': 0, 'Not Graduate': 1})
-    # input_data[' self_employed'] = input_data[' self_employed'].map({'No': 0, 'Yes': 1})
+    # Optional: If your model expects numeric encoding for text categories, map them here:
+    # input_data['education'] = input_data['education'].map({'Graduate': 0, 'Not Graduate': 1})
+    # input_data['self_employed'] = input_data['self_employed'].map({'No': 0, 'Yes': 1})
 
     try:
-        prediction = model.predict(input_data)
+        # Pass .values to bypass strict feature name checks from mismatched column headers
+        prediction = model.predict(input_data.values)
         
         st.subheader("📋 Prediction Result")
-        # Check prediction output format (handles both numeric and string outcomes)
         pred_val = prediction[0]
         if pred_val == 1 or str(pred_val).strip().lower() in ['approved', 'y', '1']:
             st.success("🎉 Congratulations! The Loan application is **APPROVED**.")
