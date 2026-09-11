@@ -9,7 +9,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom CSS Styling inside app.py
+# Custom CSS Styling
 st.markdown("""
     <style>
     .main {
@@ -52,7 +52,7 @@ with col1:
     st.subheader("👤 Demographic & Personal Info")
     no_of_dependents = st.number_input("Number of Dependents", min_value=0, max_value=10, value=0, step=1)
     
-    # Categorical columns in category form
+    # Categorical selection inputs
     education = st.selectbox("Education Status", options=["Graduate", "Not Graduate"])
     self_employed = st.selectbox("Self Employed", options=["No", "Yes"])
     
@@ -71,11 +71,16 @@ st.markdown("---")
 
 # Prediction Trigger
 if st.button("Predict Loan Status"):
-    # Construct DataFrame for structure[cite: 1]
+    # Convert text selections to numeric values (Label Encoding standard sorting)
+    # Graduate = 0, Not Graduate = 1 | No = 0, Yes = 1
+    education_encoded = 0 if education == "Graduate" else 1
+    self_employed_encoded = 0 if self_employed == "No" else 1
+
+    # Construct DataFrame structure[cite: 1]
     input_data = pd.DataFrame([[
         no_of_dependents,
-        education,
-        self_employed,
+        education_encoded,
+        self_employed_encoded,
         income_annum,
         loan_amount,
         cibil_score,
@@ -88,17 +93,15 @@ if st.button("Predict Loan Status"):
         'loan_amount', 'cibil_score', 'residential_assets_value', 
         'commercial_assets_value', 'luxury_assets_value', 'bank_asset_value'
     ])
-    
-    # Optional: If your model expects numeric encoding for text categories, map them here:
-    # input_data['education'] = input_data['education'].map({'Graduate': 0, 'Not Graduate': 1})
-    # input_data['self_employed'] = input_data['self_employed'].map({'No': 0, 'Yes': 1})
 
     try:
-        # Pass .values to bypass strict feature name checks from mismatched column headers
+        # Pass .values to bypass name-checking discrepancies and feed numbers to model
         prediction = model.predict(input_data.values)
         
         st.subheader("📋 Prediction Result")
         pred_val = prediction[0]
+        
+        # Interpret prediction outcome
         if pred_val == 1 or str(pred_val).strip().lower() in ['approved', 'y', '1']:
             st.success("🎉 Congratulations! The Loan application is **APPROVED**.")
         else:
