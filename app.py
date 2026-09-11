@@ -42,7 +42,7 @@ def load_model():
 model = load_model()
 
 st.title("💳 Loan Approval Prediction App")
-st.markdown("Enter the applicant's details below to check loan eligibility using your trained Decision Tree model (`v1.6.1`)[cite: 1].")
+st.markdown("Enter the applicant's details below to check loan eligibility.")
 st.markdown("---")
 
 # Layout using columns
@@ -71,7 +71,7 @@ st.markdown("---")
 
 # Prediction Trigger
 if st.button("Predict Loan Status"):
-    # Construct DataFrame with exact feature names matching the model
+    # Construct DataFrame with the exact feature names and spacing from the trained model[cite: 1]
     input_data = pd.DataFrame([[
         no_of_dependents,
         education,
@@ -84,25 +84,33 @@ if st.button("Predict Loan Status"):
         luxury_assets_value,
         bank_asset_value
     ]], columns=[
-        'no_of_dependents', 'education', 'self_employed', 'income_annum', 
-        'loan_amount', 'cibil_score', 'residential_assets_value', 
-        'commercial_assets_value', 'luxury_assets_value', 'bank_asset_value'
+        ' no_of_dependents', 
+        ' education', 
+        ' self_employed', 
+        'income_annum', 
+        ' loan_amount', 
+        ' cibil_score', 
+        ' residential_assets_value', 
+        ' commercial_assets_value', 
+        ' luxury_assets_value', 
+        ' bank_asset_value'
     ])
     
-    # NOTE: If your training pipeline used Label Encoding/Ordinal Encoding for 
-    # 'education' or 'self_employed', map them here before running model.predict().
-    # Example:
-    # input_data['education'] = input_data['education'].map({'Graduate': 0, 'Not Graduate': 1})
-    # input_data['self_employed'] = input_data['self_employed'].map({'No': 0, 'Yes': 1})
+    # NOTE: If your model was trained on encoded numeric values instead of text strings 
+    # for 'education' or 'self_employed', uncomment and map them below:
+    # input_data[' education'] = input_data[' education'].map({'Graduate': 0, 'Not Graduate': 1})
+    # input_data[' self_employed'] = input_data[' self_employed'].map({'No': 0, 'Yes': 1})
 
     try:
         prediction = model.predict(input_data)
         
         st.subheader("📋 Prediction Result")
-        if prediction[0] == 1 or str(prediction[0]).lower() in ['approved', 'y', '1']:
+        # Check prediction output format (handles both numeric and string outcomes)
+        pred_val = prediction[0]
+        if pred_val == 1 or str(pred_val).strip().lower() in ['approved', 'y', '1']:
             st.success("🎉 Congratulations! The Loan application is **APPROVED**.")
         else:
             st.error("❌ Sorry, the Loan application is **REJECTED**.")
+            
     except Exception as e:
         st.error(f"Prediction Error: {e}")
-        st.info("Tip: Verify if your model expects categorical text strings or encoded numeric labels.")
